@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><meta name="description" content="从 World Tree 到 Lilyput，记录几次个人助理尝试的功能变化、故障，以及判断怎样改变。"><meta name="theme-color" content="#fefeff"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>个人助理的几次尝试 · Murphy</title><link rel="stylesheet" href="/_astro/BaseLayout.CV7U8KFM.css"></head><body><a class="skip-link" href="#main">跳转到正文</a><div class="page-shell"><header class="site-header"><a class="wordmark" href="/" aria-label="Murphy 首页">Murphy<span class="wordmark-period" aria-hidden="true">.</span></a><nav aria-label="主导航"><ul><li><a href="/writing/" aria-current="page">文章</a></li><li><a href="/gallery/">画廊</a></li><li><a href="https://muurrphy.github.io/desktop-robot-murphy-demo/portfolio/">作品集</a></li></ul></nav></header><main id="main"><article class="article-page"><a class="back-link" href="/writing/">文章</a><header class="article-heading"><div class="article-meta"><a href="/writing/">随笔</a><span>作者：ChatGPT</span></div><h1>个人助理的几次尝试</h1><p class="article-summary">从 World Tree 到 Lilyput，记录几次个人助理尝试的功能变化、故障，以及判断怎样改变。</p><p class="article-credit">根据 Murphy 与 ChatGPT 的项目讨论、运行记录及留存文件整理。</p></header><div class="prose article-collection"><p>这篇文章保留了几次个人助理尝试的连续变化。它不是一次完成后的项目复盘，而是从网页、状态系统、Telegram 助理和开源 Agent 框架，一直走到 Lilyput 的过程记录。</p>
+<section class="article-collection-part"><p>2025 年 10 月，Murphy 第一次试着把自己的生活安排做成网页。此后的记录里，前两次尝试仍然接近网站，第三次开始处理状态和数据，第四次可以通过 Telegram 调用工具，后面则换成了已经成熟的开源 Agent 框架。</p>
+<p>这些项目当时没有被规划成连续的版本。每次开始时，她都以为自己终于找到了上一版缺少的东西，真正用起来以后，问题才会换一个位置出现。</p>
+<h2 id="world-tree">World Tree</h2>
+<p>World Tree 开始于 2025 年 10 月 20 日。Murphy 想把学业、健康和创业放进同一棵树里，任务完成以后获得经验值，树上相应的枝叶继续生长。网页里有 New Quest、Today、World Tree 和 AI Generate，也有截止日期、优先级、子任务、拖拽排序、导入与导出。</p>
+<p>她当时不知道前端和后端分别是什么，也不知道数据库与浏览器存储的区别，只知道把 HTML、CSS 和 JavaScript 放在一起以后，浏览器里真的出现了一套可以点击的界面。她给真实课程和实习填入任务，反复调整树的颜色、果实和发光效果，看到页面能跑时觉得自己简直像个黑客。</p>
+<p>任务实际保存在浏览器的 <code>localStorage</code> 里。10 月 23 日的 Git 记录里有一次提交，名字是“bug 问题，刷新后数据越来越少”，修复主要围绕保存时机和子任务结构展开。数据可以在这台电脑的这个浏览器里留下，换一台设备以后不会继续存在，网页也不会知道一项任务为什么重要。</p>
+<p>AI Generate 已经出现在最上方，点击以后只会弹出一句 “AI Generate feature coming soon”。Today 页面能按日期筛选任务，World Tree 能把三个领域画成树，但系统没有模型，也没有任何会替 Murphy 判断和推进任务的部分。她最初把一套能够承载生活内容的界面当成了个人助理，后来才知道，页面会保存输入和系统会理解生活是两件事。</p>
+<h2 id="canopy">Canopy</h2>
+<p>五天以后，Murphy 又做了一版。这里把它记作 Canopy，文件第一次被分成 <code>frontend</code> 和服务器两部分，页面需要先在终端启动，再通过 <code>localhost:3000</code> 打开。她开始使用 Node.js，也第一次把一个能够提供网页文件的程序称作后端。</p>
+<p>服务器的工作是读取 <code>frontend</code> 目录里的 HTML、CSS、JavaScript 和图片，再把它们交给浏览器。学业、健康和创业各有一张单独页面，首页仍然保留 World Tree 和 AI Generate，三个页面里的今日任务已经写在 HTML 里。预留的 <code>storage.js</code> 是一个空文件，系统没有数据库，也没有保存用户状态的接口。</p>
+<p>这一版在目录上比 World Tree 更像一个完整软件，实际功能反而更少。浏览器能够通过服务器打开页面，页面里的信息仍然不会随着使用积累，AI Generate 也没有接入模型。Murphy 在这里开始知道一个网页背后还需要服务端，当时对服务端的理解主要停在“它能把文件送到浏览器”。</p>
+<h2 id="anchor">Anchor</h2>
+<p>12 月 29 日晚，Anchor 开始成形。晚上九点留下第一份 README，十点以后已经出现 GraphQL schema 和后端环境。这次的目标变成了个人信息流与认知状态管理，任意输入先形成事件，再由系统维护一份 Current Global State，同时留下不可修改的每日状态记录和结构化回收站。</p>
+<p>Anchor 的设计里有 PostgreSQL、Redis、MinIO、Temporal 和 GraphQL。前端包括输入区、当前状态、待确认提案、回收站、日报和设置，后端包括事件摄入、NLP worker、状态引擎和报告生成。删除一项内容不会直接消失，它会进入回收站，状态发生冲突时也不立即覆盖，而是生成一条待确认提案。</p>
+<p>这些目录里保留了真正的前后端代码，TypeScript 能够通过检查，数据库表和部分服务也已经写出。项目里没有留下完整部署后的页面、持续运行日志或日常使用数据，部分对象存储和回收站调用仍然停在占位实现。要让它工作，需要同时启动数据库、缓存、对象存储、工作流服务、GraphQL 网关和前端。</p>
+<p>World Tree 的问题是没有真正的后端，Anchor 一次把状态一致性、事件追溯、冲突确认和长期存档都放了进去。Murphy 已经知道生活信息不能只存在浏览器里，也开始考虑系统怎样保留变化，但这一版先解决了完整系统应该有什么，还没有回答她每天为什么愿意打开它。</p>
+<h2 id="shark-assistant">Shark Assistant</h2>
+<p>2026 年 1 月，Shark Assistant 把界面暂时放到一边。它是一个 Python 个人助理，以 Gemini 作为模型，通过 Telegram 收发消息，学业和健康数据放在 Notion，后来又加入财务模块。系统会从用户的话里识别主题，再加载相应模块的提示词和工具，询问作业时查询学业数据库，提到睡眠时切换到健康模块。</p>
+<p>1 月 17 日的运行日志里，Murphy 问“今天有啥作业的 deadline”，它查到当天没有截止日期。她又问未来七天有什么作业，它列出了课程和日期。健康模块可以读取最近的状态，也能把睡眠、疼痛和饮水写入 Notion。为了确认睡眠记录是否真的调用了工具，她在日志里连续输入很多次“我睡了五小时”，每次查看模型是只回复“记录了”，还是实际执行 <code>health_log_sleep</code>。</p>
+<p>工具调用并不稳定。有时模型回复记录成功，日志里没有出现对应的写入，有时加载健康模块以后留下“Gemini 没有返回文本”。Notion 数据库创建时又遇到必须包含 title 属性的问题，使用 <code>notion-client</code> 创建数据库后属性为空，最后改成直接通过 HTTP 请求调用 Notion API。到财务模块接入以后，日志里已经能看到模型主动调用 <code>record_vocabulary</code>，把背过的单词换算成当天的虚拟收入。</p>
+<p>这是这些尝试里第一套真正进入生活的系统。它能从 Telegram 接住一句自然语言，再去别处查询或写入数据，但对话记忆只保留最近二十轮，程序重启以后消失。所谓主动性主要是固定时间的日报和用户发出第一条消息后的检查，其他事情仍然需要 Murphy 先开口。</p>
+<p>她还要提前设计 Notion 字段，给每个模块写规则，再决定哪些词会触发哪个提示词。系统已经能够替她执行一部分操作，她仍然需要把生活翻译成数据库字段和明确指令。</p>
+<h2 id="openclaw-与-hermes">OpenClaw 与 Hermes</h2>
+<p>2 月 8 日，OpenClaw 正在大火。Murphy 起初有点不服气，觉得自己的个人助理也已经接入 Telegram，用过以后很快就服气了。OpenClaw 已经提供持久会话、每日记忆、长期记忆、Heartbeat、Cron、Flow 和多渠道连接，她不再需要自己重写一套 Agent 内核。Shark Assistant 里的财务、健康和学业逻辑可以保留为 Skill，让框架负责记忆、触发和工具调度。</p>
+<p>接入过程仍然留下了很多具体问题。她先试过本地 Ollama 和 Qwen3 14B，一条回复大约需要四分钟，主要时间消耗在约一万一千 token 的系统提示词预填充上，随后换成 DeepSeek V3，响应回到几秒。Ollama 的 provider 配置需要补齐模型信息，本地上下文还会被默认值截断，Qwen3 的思考字段也会影响工具调用解析。</p>
+<p>OpenClaw 可以自己在固定时间醒来，读取日历和记忆，再按照流程安排一天。2 月 10 日，系统为了演示财务公式运行 <code>finance_engine.py test</code>，测试命令直接调用了真实写入函数，三笔测试收入进入正式账本，当天的状态扣除也被错误执行。后面的修复把 test 改成只读计算，并把临时状态的清理加入晚安流程。</p>
+<p>框架解决了很多 Shark Assistant 没有来得及解决的部分，使用中的另一份记录仍然写着“龙虾缺乏对话推进能力，聊天冷漠”。它会完成任务，不会自然地追问，也不总会主动读取记忆继续一段尚未结束的谈话。Murphy 先在 IDENTITY 里加入对话规则，又考虑为情绪对话单独写 Flow，问题随后继续向消息分类、上下文加载和回复自检延伸。</p>
+<p>为了让系统了解她，她需要把自己写进 <code>SOUL.md</code>、<code>IDENTITY.md</code>、<code>USER.md</code> 和 <code>MEMORY.md</code>，再用日历、Notion 和流程文件补足每天发生的变化。OpenClaw 比前四版更接近一个可以持续运行的个人助理，也更清楚地暴露了剩下的距离。它能够记住文件里有什么，能够按时间醒来，仍然要等 Murphy 把生活整理成它能够读取的形式。</p>
+<p>几个月以后，Hermes Agent 又火了。Murphy 安装了 Hermes，完成 Telegram gateway 配对，调整输出长度，又反复运行 restart、update 和 setup，还尝试给它接入语音。本地现存的 <code>SOUL.md</code> 仍然是默认人格，<code>memories</code> 和 <code>sessions</code> 目录为空，最后一份 gateway 状态停在 Telegram 轮询连续发生十次网络错误以后。</p>
+<p>Hermes 已经把持久记忆和 Skills 做进框架，也提供消息平台 gateway，Murphy 不需要再从 Telegram 收发消息开始搭起。她没有把这次试用继续到日常阶段，两套成熟框架留下的问题却很接近，要让它们成为她的个人助理，仍然需要由她写人格和记忆，挑选技能，再规定什么变化值得保留，什么时候应该主动介入。</p>
+<h2 id="lilyput">Lilyput</h2>
+<p>2026 年 2 月以后，Murphy 没有继续重写 Telegram 助理，开始把个人助理从对话框挪到 Lilyput。此前的主动性主要依靠 Heartbeat 和 Cron，系统对人的了解依靠手写的 SOUL.md 与 MEMORY.md。Lilyput 则从电脑摄像头和电脑活动中收集观察，也会保存对话与设备回执，尝试让同一个目标跨对话保留，并把每次介入后的现实结果继续写回系统。</p>
+<p>它没有因此直接变成能够自主生活的个人助理。连续观察会带来数据质量和隐私问题，目标怎样持续、什么时候介入、一次动作是否真的改变了结果，都需要另外设计。后续工作逐渐分成桌面机器人和行为系统两条线，具体实验留在这两个项目中。</p>
+<p class="record-credit">记录来源　对话模型依据相关项目的留存文件和运行记录，按项目规范持续归档。</p>
+</section></div><nav class="article-pagination" aria-label="文章翻页"><div class="article-pagination-slot article-pagination-slot--previous"><a href="/writing/robot-arm-learning-notes/" rel="prev"><span class="article-pagination-direction">上一篇</span><span class="article-pagination-title">机械臂：从第一次遥操到情绪表达</span></a></div><div class="article-pagination-slot article-pagination-slot--next"><a href="/writing/spherical-robot-build-notes/" rel="next"><span class="article-pagination-direction">下一篇</span><span class="article-pagination-title">从一块面包板开始：开源球形机器人复刻</span></a></div></nav></article></main><footer class="site-footer"><span class="footer-name">Murphy</span><a href="mailto:meichen2050@outlook.com">联系</a></footer></div></body></html>
